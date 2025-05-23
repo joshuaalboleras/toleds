@@ -1,0 +1,70 @@
+/* Custom styles */
+body {
+    font-family: "Inter", sans-serif;
+    margin: 0;
+    overflow-x: hidden;
+    /* Prevent horizontal scrolling */
+}
+
+/* Ensure all elements have rounded corners as per instructions */
+.rounded-xl {
+    border-radius: 0.75rem;
+    /* Equivalent to rounded-xl */
+}
+
+.rounded-2xl {
+    border-radius: 1rem;
+    /* Equivalent to rounded-2xl */
+}
+
+.rounded-lg {
+    border-radius: 0.5rem;
+    /* Equivalent to rounded-lg */
+}
+
+.rounded-full {
+    border-radius: 9999px;
+    /* Equivalent to rounded-full */
+}
+
+/* Specific button/link styles for hover effects */
+.hover\:text-white:hover {
+    color: #ffffff;
+}
+
+.hover\:bg-\[\#2d3a4f\]:hover {
+    background-color: #2d3a4f;
+}
+
+.hover\:text-gray-600:hover {
+    color: #4b5563;
+}
+
+.hover\:shadow-md:hover {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+        0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.hover\:bg-blue-600:hover {
+    background-color: #2563eb;
+}
+
+.hover\:text-blue-600:hover {
+    color: #2563eb;
+}
+
+.hover\:text-red-600:hover {
+    color: #dc2626;
+}
+
+.hover\:bg-gray-50:hover {
+    background-color: #f9fafb;
+}
+
+.hover\:text-gray-600:hover {
+    color: #4b5563;
+}
+
+.hover\:text-blue-300:hover {
+    color: #93c5fd;
+}
