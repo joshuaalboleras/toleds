@@ -17,5 +17,6 @@ class DashboardController extends Controller
 
     public function delete(User $user){
         $user->delete();
+        return redirect()->route('admin.dashboard')->with('message',"User Deleted");
     }
 }

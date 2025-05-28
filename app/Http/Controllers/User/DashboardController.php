@@ -14,9 +14,8 @@ class DashboardController extends Controller
         $id = auth()->user()->id;
 
         // Eager load the 'room' relationship
-        $booking = Booking::with('room')->where(['user_id' => $id, 'status' => 'approved'])->first();
-
-        return view('user.index',['room'=>$booking->room ?? null]);
+        $rooms = Booking::with('room')->where(['user_id' => $id, 'status' => 'approved'])->get();
+        return view('user.index',['rooms'=>$rooms]);
     }
 
     public function browse(){

@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Foundation\Auth\RegistersUsers;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 
@@ -63,10 +65,27 @@ class RegisterController extends Controller
      */
     protected function create(array $data)
     {
-        return User::create([
+        $defaultrole = Role::where('role_name','user')->first();
+
+        $user = User::create([
             'name' => $data['name'],
             'email' => $data['email'],
             'password' => Hash::make($data['password']),
+            
         ]);
+
+        if($defaultrole){
+            $role_id = $defaultrole->id;
+            $user->role_id = $role_id;
+            $user->save();
+        }
+
+        return $user;
+        
+    }
+
+    public function registered(Request $request,$user)
+    {   
+        return redirect($user->role->url);
     }
 }
