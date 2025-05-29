@@ -17,6 +17,7 @@ class BookingSeeder extends Seeder
         Booking::insert([
             ['user_id' => 2,'room_id' => 1,'status' => 'pending'],
             ['user_id' => 2,'room_id' => 1,'status' => 'pending'],
+            ['user_id' => 2,'room_id' => 1,'status' => 'pending'],
         ]);
     }
 }

@@ -68,16 +68,48 @@ class BookingController extends Controller
      */
     public function destroy(Booking $booking)
     {
+        $room = $booking->room;
         $booking->delete();
+        
+        // Delete other pending bookings for this room
+        Booking::where('room_id', $room->id)
+              ->where('status', 'pending')
+              ->delete();
+              
+        $room->is_available = 1;
+        $room->save();
+        
         return redirect()->route('admin.bookings.index')->with('message','deleted successfully');
     }
 
     public function approve(Booking $booking)
     {
+        $room = $booking->room;
+        
+        // Add logging to debug the query
+        \Log::info('Room ID: ' . $room->id);
+        \Log::info('Booking ID: ' . $booking->id);
+        
+        // Get pending bookings before deletion
+        $pendingBookings = Booking::where('room_id', $room->id)
+                                 ->where('id', '!=', $booking->id) 
+                                 ->where('status', 'pending')
+                                 ->get();
+                                 
+        \Log::info('Pending bookings to delete: ' . $pendingBookings->count());
+        \Log::info($pendingBookings->toArray());
+
+        // Delete other pending bookings for this room
+        $deleted = Booking::where('room_id', $room->id)
+                         ->where('id', '!=', $booking->id)
+                         ->where('status', 'pending')
+                         ->delete();
+                         
+        \Log::info('Number of records deleted: ' . $deleted);
+        
         $booking->status = 'approved';
         $booking->save();
 
-        $room = $booking->room;
         $room->is_available = 0;
         $room->save();
 
@@ -90,13 +122,15 @@ class BookingController extends Controller
     }
 
     public function done(Booking $booking){
-       $room = $booking->room;
-       $room->is_available = 1;
-       $room->save();
+        $room = $booking->room;
+        
+        $booking->status = 'completed';
+        $booking->save();
 
-       $booking->status = 'completed';
-       $booking->save();
+        // Room becomes available again
+        $room->is_available = 1;
+        $room->save();
 
-       return redirect()->route('admin.bookings.index')->with('message','One room unoccupied');
+        return redirect()->route('admin.bookings.index')->with('message','One room unoccupied');
     }
 }

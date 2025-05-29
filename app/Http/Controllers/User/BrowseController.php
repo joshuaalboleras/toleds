@@ -15,18 +15,40 @@ class BrowseController extends Controller
         return view('user.browse',['rooms' => $rooms]);
     }
 
-    public function avail(Request $request,Room $room){
-        $id = auth()->user()->id;
-        $room_id = $room->id;
+    public function avail(Request $request, Room $room)
+    {
+        $user = auth()->user();
+        
+        $hasPendingBooking = Booking::where([
+            'user_id' => $user->id,
+            'status' => 'pending'
+        ])->exists();
 
-        $counts = Booking::where(['user_id'=>$id, 'status' => 'pending'])->get()->count();
-       
-        if($counts == 0){
-            Booking::insert(['user_id'=>$id,'room_id' => $room_id,'status' => 'pending']);
-            return redirect()->route('user.browse')->with('message','Please Wait for approval');
-        }else{     
-            return redirect()->route('user.browse')->with('error','Request Pending');
+        $hasApprovedBooking = Booking::where([
+            'user_id' => $user->id,
+            'status' => 'approved'
+        ])->exists();
+
+        if ($hasApprovedBooking) {
+            return redirect()
+                ->route('user.browse')
+                ->with('error', 'You have already approved a room');
         }
 
+        if ($hasPendingBooking) {
+            return redirect()
+                ->route('user.browse')
+                ->with('error', 'Request Pending');
+        }
+
+        Booking::create([
+            'user_id' => $user->id,
+            'room_id' => $room->id,
+            'status' => 'pending'
+        ]);
+
+        return redirect()
+            ->route('user.browse')
+            ->with('message', 'Please Wait for approval');
     }
 }

@@ -5,10 +5,12 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Models\Role;
 use App\Models\User;
+use DB;
 use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Log;
 
 class RegisterController extends Controller
 {
@@ -65,27 +67,31 @@ class RegisterController extends Controller
      */
     protected function create(array $data)
     {
-        $defaultrole = Role::where('role_name','user')->first();
+    
+        return DB::transaction(function () use ($data) {
+            $defaultRole = Role::whereIn('role_name', ['user', 'member'])->first();
 
-        $user = User::create([
-            'name' => $data['name'],
-            'email' => $data['email'],
-            'password' => Hash::make($data['password']),
-            
-        ]);
+            if (!$defaultRole) {
+                // Optional: Log or throw an exception
+                Log::error('Default role not found during user registration.');
+                throw new \Exception('Default role not found.');
+            }
 
-        if($defaultrole){
-            $role_id = $defaultrole->id;
-            $user->role_id = $role_id;
+            $user = User::create([
+                'name' => $data['name'],
+                'email' => $data['email'],
+                'password' => Hash::make($data['password']),
+            ]);
+
+            $user->role_id = $defaultRole->id;
             $user->save();
-        }
 
-        return $user;
-        
+            return $user;
+        });
     }
 
-    public function registered(Request $request,$user)
-    {   
+    public function registered(Request $request, $user)
+    {
         return redirect($user->role->url);
     }
 }
